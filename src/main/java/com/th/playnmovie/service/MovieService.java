@@ -1,20 +1,18 @@
 package com.th.playnmovie.service;
 
-import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.th.playnmovie.dto.MovieDto;
+import com.th.playnmovie.exception.MovieAlreadyExistsException;
+import com.th.playnmovie.exception.MovieNotFoundException;
 import com.th.playnmovie.mapper.MovieMapper;
 import com.th.playnmovie.model.Movie;
 import com.th.playnmovie.repository.MovieRepository;
-
-import jakarta.persistence.EntityExistsException;
 
 @Service
 public class MovieService {
@@ -27,7 +25,7 @@ public class MovieService {
 	@Autowired
 	private TmdbService tmdbService;
 
-	public MovieDto createMovie(MovieDto movieDto) throws NotFoundException {
+	public MovieDto createMovie(MovieDto movieDto){
 		validateMovieDto(movieDto);
 
 		logger.info("Checking if the movie '{}' already exists before creating.", movieDto.getTitle());
@@ -35,7 +33,7 @@ public class MovieService {
 
 		if (!found.isEmpty()) {
 			logger.warn("Movie '{}' already exists in the system.", movieDto.getTitle());
-			throw new EntityExistsException();
+			throw new MovieAlreadyExistsException();
 		}
 
 		Movie movie = MovieMapper.toMovie(movieDto);
@@ -44,7 +42,7 @@ public class MovieService {
 		return MovieMapper.toDto(movie);
 	}
 
-	public MovieDto updateMovie(MovieDto movieDto) throws NotFoundException {
+	public MovieDto updateMovie(MovieDto movieDto) {
 
 		if (movieDto == null || movieDto.getId() == null) {
 			logger.warn("Attempt to update movie with null ID.");
@@ -57,7 +55,7 @@ public class MovieService {
 		Movie movieEntity = movieRepository.findById(movieDto.getId())
 				.orElseThrow(() -> {
 					logger.error("Movie with ID {} not found for update.", movieDto.getId());
-					return new NotFoundException();
+					return new MovieNotFoundException();
 				});
 
 		movieEntity.setGenres(movieDto.getGenres());
@@ -71,7 +69,7 @@ public class MovieService {
 		return MovieMapper.toDto(movieEntity);
 	}
 
-	public void deleteMovieById(Long id) throws NotFoundException {
+	public void deleteMovieById(Long id) {
 
 		if (id == null) {
 			logger.warn("Attempt to delete movie with null ID.");
@@ -83,7 +81,7 @@ public class MovieService {
 		Movie movieEntity = movieRepository.findById(id)
 				.orElseThrow(() -> {
 					logger.error("Movie with ID {} not found for deletion.", id);
-					return new NotFoundException();
+					return new MovieNotFoundException();
 				});
 
 		movieRepository.delete(movieEntity);
@@ -107,4 +105,3 @@ public class MovieService {
 		}
 	}
 }
-

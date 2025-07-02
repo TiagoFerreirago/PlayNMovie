@@ -8,12 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.th.playnmovie.dto.MovieDto;
 import com.th.playnmovie.dto.TmdbResponseDto;
+import com.th.playnmovie.exception.MovieNotFoundException;
 import com.th.playnmovie.mapper.MovieMapper;
 import com.th.playnmovie.model.Movie;
 import com.th.playnmovie.repository.MovieRepository;
@@ -34,7 +34,7 @@ public class TmdbService {
 	private MovieRepository movieRepository;
 	
 	
-	public List<MovieDto> getMovieForPage(int page) throws NotFoundException {
+	public List<MovieDto> getMovieForPage(int page) {
 		if (page < 1) {
 			logger.warn("Invalid page number: {}", page);
 			throw new IllegalArgumentException("Page must be greater than or equal to 1.");
@@ -46,7 +46,7 @@ public class TmdbService {
 		return response.getResults();
 	}
 	
-	public List<MovieDto> findMovieByTitleOrGenre(String title, List<String> genres) throws NotFoundException{
+	public List<MovieDto> findMovieByTitleOrGenre(String title, List<String> genres){
 		logger.info("Starting movie search by title '{}' or genres '{}'.", title, genres);
 		
 		if ((title == null || title.trim().isEmpty()) &&
@@ -92,7 +92,7 @@ public class TmdbService {
 		return movies.stream().map(MovieMapper::toDto).collect(Collectors.toList());
 	}
 	
-	public TmdbResponseDto fetchTmdbPage(int page) throws NotFoundException {
+	public TmdbResponseDto fetchTmdbPage(int page) {
 		String url = tmdbUrl + "?api_key=" + apiKey + "&language=pt-BR&page=" + page;
 		try {
 			logger.debug("Calling TMDb API: {}", url);
@@ -100,14 +100,14 @@ public class TmdbService {
 
 			if (response == null || response.getResults() == null) {
 				logger.error("Null or malformed response from TMDb API for page {}.", page);
-				throw new NotFoundException();
+				throw new MovieNotFoundException("Could not fetch data from TMDb.");
 			}
 
 			return response;
 
 		} catch (Exception ex) {
 			logger.error("Error calling TMDb API: {}", ex.getMessage(), ex);
-			throw new NotFoundException();
+			throw new MovieNotFoundException("Error fetching data from TMDb.");
 		}
 	}
 }
