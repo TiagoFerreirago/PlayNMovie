@@ -5,16 +5,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.th.playnmovie.dto.GameDto;
 import com.th.playnmovie.exception.CustomizedBadRequestException;
+import com.th.playnmovie.exception.GameNotFoundException;
 import com.th.playnmovie.mapper.GameMapper;
 import com.th.playnmovie.model.Game;
 import com.th.playnmovie.repository.GameRepository;
 
 import reactor.core.publisher.Flux;
+
 @Service
 public class GameService {
 	
@@ -35,12 +36,12 @@ public class GameService {
 	    return GameMapper.toDto(game);
 	}
 	
-	public GameDto updateGame(GameDto dto) throws NotFoundException{
+	public GameDto updateGame(GameDto dto){
         logger.info("updateGame called with dto: {}", dto);
         validateUpdateGame(dto);
 
 	    Game game = gameRepository.findById(dto.getId())
-	            .orElseThrow(() -> new NotFoundException());
+	            .orElseThrow(() -> new GameNotFoundException());
 
 	    game.setGenres(dto.getGenres());
 	    game.setReleaseDate(dto.getReleaseDate());
@@ -53,11 +54,11 @@ public class GameService {
 	}
 
 	
-	public void deleteGame(Long id) throws NotFoundException{
+	public void deleteGame(Long id){
 		if (id == null) throw new CustomizedBadRequestException("ID obrigatório.");
 		logger.info("Deleting game with id: {}", id);
 		
-		Game game = gameRepository.findById(id).orElseThrow(() -> new NotFoundException());
+		Game game = gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException("Jogo com ID " + id + " não encontrado."));
 		gameRepository.delete(game);
 	}
 	
