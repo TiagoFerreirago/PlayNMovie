@@ -33,6 +33,16 @@ public class ResponseExceptionHandlerCustomized {
         return buildResponse(ex, request, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(GameAlreadyExistsException.class)
+    public ResponseEntity<ResponseException> handleGameAlreadyExists(GameAlreadyExistsException ex, WebRequest request) {
+        return buildResponse(ex, request, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<ResponseException> handleGameNotFound(GameNotFoundException ex, WebRequest request) {
+        return buildResponse(ex, request, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MovieAlreadyExistsException.class)
     public ResponseEntity<ResponseException> handleMovieAlreadyExists(MovieAlreadyExistsException ex, WebRequest request) {
         return buildResponse(ex, request, HttpStatus.CONFLICT);
