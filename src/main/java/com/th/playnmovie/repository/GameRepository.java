@@ -10,7 +10,14 @@ import com.th.playnmovie.model.Game;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-	@Query("SELECT g FROM Game g WHERE (:title IS NULL OR LOWER(g.title) LIKE LOWER(CONCAT('%', :title, '%'))) AND "+
-	"(:gender IS NULL OR LOWER(g.gender) = LOWER(:gender))")
-	List<Game>findGames(@Param("title")String title, @Param("gender")String gender);
+	@Query(value = """
+		    SELECT DISTINCT g.*
+		    FROM game g
+		    LEFT JOIN game_genres gg ON g.id = gg.game_id
+		    WHERE (:title IS NULL OR REPLACE(LOWER(g.title), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', :title, '%')), ' ', ''))
+		    AND (:#{#genres == null || #genres.isEmpty()} = true OR gg.genres IN (:genres))
+		    """, nativeQuery = true)
+	List<Game> findGames(@Param("title") String title, @Param("genres") List<String> genres);
+
 }
+

@@ -10,7 +10,13 @@ import com.th.playnmovie.model.Movie;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
-	@Query("SELECT m FROM Movie m WHERE :title IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', :title ,'%'))) AND "+
-	":gender IS NULL OR LOWER(m.gender) = LOWER(:gender))")
-	List<Movie>findMovies(@Param("title")String title, @Param("gender")String gender);
+	@Query(value = """
+		    SELECT DISTINCT m.*
+		    FROM movie m
+		    JOIN movie_genres mg ON m.id = mg.movie_id
+		    WHERE (:title IS NULL OR REPLACE(LOWER(m.title), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', :title, '%')), ' ', ''))
+		    AND (:genres IS NULL OR mg.genres IN (:genres))
+		    """, nativeQuery = true)
+	List<Movie> findMovies(@Param("title") String title, @Param("genres") List<String> genres);
+
 }
