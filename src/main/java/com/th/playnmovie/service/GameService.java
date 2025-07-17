@@ -31,7 +31,7 @@ public class GameService {
 
 		validateNewGame(dto);
 		
-	    Game game = new Game(dto);
+	    Game game = GameMapper.fromDto(dto);
 	    gameRepository.save(game);
 	    return GameMapper.toDto(game);
 	}

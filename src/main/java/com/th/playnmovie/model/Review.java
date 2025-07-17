@@ -21,7 +21,7 @@ public class Review {
 	
 	private Long itemId;
 	
-	private String type;
+	private TypeEnum type;
 	
 	private String comment;
 	
@@ -51,14 +51,6 @@ public class Review {
 		this.itemId = itemId;
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	public String getComment() {
 		return comment;
 	}
@@ -73,6 +65,14 @@ public class Review {
 
 	public void setNotice(Integer notice) {
 		this.notice = notice;
+	}
+
+	public TypeEnum getType() {
+		return type;
+	}
+
+	public void setType(TypeEnum type) {
+		this.type = type;
 	}
 
 	@Override
@@ -90,9 +90,9 @@ public class Review {
 			return false;
 		Review other = (Review) obj;
 		return Objects.equals(comment, other.comment) && Objects.equals(id, other.id)
-				&& Objects.equals(itemId, other.itemId) && Objects.equals(notice, other.notice)
-				&& Objects.equals(type, other.type) && Objects.equals(user, other.user);
+				&& Objects.equals(itemId, other.itemId) && Objects.equals(notice, other.notice) && type == other.type
+				&& Objects.equals(user, other.user);
 	}
-	
+
 	
 }

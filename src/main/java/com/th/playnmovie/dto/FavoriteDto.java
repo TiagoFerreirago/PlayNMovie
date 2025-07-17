@@ -2,7 +2,7 @@ package com.th.playnmovie.dto;
 
 import java.util.Objects;
 
-import com.th.playnmovie.model.Favorite;
+import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.security.model.User;
 
 public class FavoriteDto {
@@ -13,31 +13,40 @@ public class FavoriteDto {
 	
 	private Long itemId;
 	
-	private String type;
+	private TypeEnum type;
 
 	public FavoriteDto() {}
-	
-	public FavoriteDto(Favorite favorite) {
-		this.id = favorite.getId();
-		this.user = favorite.getUser();
-		this.itemId = favorite.getItemId();
-		this.type = favorite.getType();
-	}
 
 	public Long getId() {
 		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public User getUser() {
 		return user;
 	}
 
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	public Long getItemId() {
 		return itemId;
 	}
 
-	public String getType() {
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+	public TypeEnum getType() {
 		return type;
+	}
+
+	public void setType(TypeEnum type) {
+		this.type = type;
 	}
 
 	@Override
@@ -54,8 +63,9 @@ public class FavoriteDto {
 		if (getClass() != obj.getClass())
 			return false;
 		FavoriteDto other = (FavoriteDto) obj;
-		return Objects.equals(id, other.id) && Objects.equals(itemId, other.itemId) && Objects.equals(type, other.type)
+		return Objects.equals(id, other.id) && Objects.equals(itemId, other.itemId) && type == other.type
 				&& Objects.equals(user, other.user);
 	}
+
 	
 }

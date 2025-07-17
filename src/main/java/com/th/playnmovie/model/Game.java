@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.th.playnmovie.dto.GameDto;
-
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,14 +26,7 @@ public class Game {
 	
 	public Game() {}
 	
-	public Game(GameDto gameDto) {
-		this.title = gameDto.getTitle();
-		this.genres = gameDto.getGenres();
-		this.releaseDate = gameDto.getReleaseDate();
-		this.synopsis = gameDto.getSynopsis();
-		this.url = gameDto.getUrl();
-	}
-	
+
 	public Long getId() {
 		return id;
 	}

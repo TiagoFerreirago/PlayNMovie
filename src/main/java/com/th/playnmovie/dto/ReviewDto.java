@@ -3,6 +3,7 @@ package com.th.playnmovie.dto;
 import java.util.Objects;
 
 import com.th.playnmovie.model.Review;
+import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.security.model.User;
 
 public class ReviewDto {
@@ -10,7 +11,7 @@ public class ReviewDto {
 	private Long id;
 	private User user;
 	private Long itemId;
-	private String type;
+	private TypeEnum type;
 	private String comment;
 	private Integer notice;
 	
@@ -29,24 +30,49 @@ public class ReviewDto {
 		return id;
 	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public User getUser() {
 		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public Long getItemId() {
 		return itemId;
 	}
 
-	public String getType() {
-		return type;
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
 	}
+
 
 	public String getComment() {
 		return comment;
 	}
 
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public Integer getNotice() {
 		return notice;
+	}
+
+	public void setNotice(Integer notice) {
+		this.notice = notice;
+	}
+
+	public TypeEnum getType() {
+		return type;
+	}
+
+	public void setType(TypeEnum type) {
+		this.type = type;
 	}
 
 	@Override
@@ -64,9 +90,9 @@ public class ReviewDto {
 			return false;
 		ReviewDto other = (ReviewDto) obj;
 		return Objects.equals(comment, other.comment) && Objects.equals(id, other.id)
-				&& Objects.equals(itemId, other.itemId) && Objects.equals(notice, other.notice)
-				&& Objects.equals(type, other.type) && Objects.equals(user, other.user);
+				&& Objects.equals(itemId, other.itemId) && Objects.equals(notice, other.notice) && type == other.type
+				&& Objects.equals(user, other.user);
 	}
-	
+
 	
 }

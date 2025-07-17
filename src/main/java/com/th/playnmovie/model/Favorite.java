@@ -21,7 +21,11 @@ public class Favorite {
 	
 	private Long itemId;
 	
-	private String type;
+	private TypeEnum type;
+	
+	
+	public Favorite() {
+	}
 
 	public Long getId() {
 		return id;
@@ -47,11 +51,11 @@ public class Favorite {
 		this.itemId = itemId;
 	}
 
-	public String getType() {
+	public TypeEnum getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(TypeEnum type) {
 		this.type = type;
 	}
 
@@ -69,9 +73,9 @@ public class Favorite {
 		if (getClass() != obj.getClass())
 			return false;
 		Favorite other = (Favorite) obj;
-		return Objects.equals(id, other.id) && Objects.equals(itemId, other.itemId) && Objects.equals(type, other.type)
+		return Objects.equals(id, other.id) && Objects.equals(itemId, other.itemId) && type == other.type
 				&& Objects.equals(user, other.user);
 	}
-	
+
 	
 }
