@@ -52,4 +52,15 @@ public class ResponseExceptionHandlerCustomized {
     public ResponseEntity<ResponseException> handleMovieNotFound(MovieNotFoundException ex, WebRequest request) {
         return buildResponse(ex, request, HttpStatus.NOT_FOUND);
     }
+    
+    @ExceptionHandler(FavoriteAlreadyExistsException.class)
+    public ResponseEntity<ResponseException> handleFavoriteAlreadyExists(FavoriteAlreadyExistsException ex, WebRequest request) {
+    	return buildResponse(ex, request, HttpStatus.CONFLICT);
+    }
+    
+    @ExceptionHandler(FavoriteNotFoundException.class)
+    public ResponseEntity<ResponseException> handleFavoriteNotFound(FavoriteNotFoundException ex, WebRequest request) {
+    	return buildResponse(ex, request, HttpStatus.NOT_FOUND);
+    }
+    
 }

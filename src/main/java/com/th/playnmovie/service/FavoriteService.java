@@ -6,10 +6,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.th.playnmovie.dto.FavoriteDto;
+import com.th.playnmovie.exception.FavoriteAlreadyExistsException;
+import com.th.playnmovie.exception.FavoriteNotFoundException;
 import com.th.playnmovie.mapper.FavoriteMapper;
 import com.th.playnmovie.model.Favorite;
 import com.th.playnmovie.repository.FavoriteRepository;
@@ -22,7 +23,7 @@ public class FavoriteService {
 	@Autowired
 	private FavoriteRepository favoriteRepository;
 	
-	public FavoriteDto favorite(FavoriteDto favoriteDto) throws Exception {
+	public FavoriteDto favorite(FavoriteDto favoriteDto) {
 		 logger.info("Attempting to add favorite: userId={}, itemId={}, type={}",
 	                favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		
@@ -37,7 +38,7 @@ public class FavoriteService {
 		    if (favoritaded) {
 		    	 logger.warn("Favorite already exists for userId={}, itemId={}, type={}",
 		                    favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
-		        throw new Exception();
+		        throw new FavoriteAlreadyExistsException();
 		    } else {
 		    	favorite = new Favorite();
 		        favorite.setItemId(favoriteDto.getItemId());
@@ -51,7 +52,7 @@ public class FavoriteService {
 		    return FavoriteMapper.toDto(favorite);
 	}
 	
-	public void unFavorite(FavoriteDto favoriteDto) throws NotFoundException {
+	public void unFavorite(FavoriteDto favoriteDto) {
 	    logger.info("Attempting to remove favorite: userId={}, itemId={}, type={}",
                 favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		
@@ -59,7 +60,7 @@ public class FavoriteService {
 		if(!exists) {
 			logger.warn("Favorite not found for removal: userId={}, itemId={}, type={}",
 	                    favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
-			throw new NotFoundException();
+			throw new FavoriteNotFoundException();
 		}
 		
 		favoriteRepository.unfavorite(favoriteDto.getUser(), favoriteDto.getItemId(), favoriteDto.getType());
