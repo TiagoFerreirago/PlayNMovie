@@ -63,4 +63,13 @@ public class ResponseExceptionHandlerCustomized {
     	return buildResponse(ex, request, HttpStatus.NOT_FOUND);
     }
     
+    @ExceptionHandler(ReviewAlreadyExistsException.class)
+    public ResponseEntity<ResponseException> handleReviewAlreadyExists(ReviewAlreadyExistsException ex, WebRequest request) {
+    	return buildResponse(ex, request, HttpStatus.CONFLICT);
+    }
+    
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ResponseException> handleReviewNotFound(ReviewNotFoundException ex, WebRequest request) {
+    	return buildResponse(ex, request, HttpStatus.NOT_FOUND);
+    }
 }

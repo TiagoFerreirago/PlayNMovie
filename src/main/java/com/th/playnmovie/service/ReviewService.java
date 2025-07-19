@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.th.playnmovie.dto.ReviewDto;
+import com.th.playnmovie.exception.ReviewNotFoundException;
 import com.th.playnmovie.mapper.ReviewMapper;
 import com.th.playnmovie.model.Review;
 import com.th.playnmovie.model.TypeEnum;
@@ -23,13 +23,13 @@ public class ReviewService {
 	@Autowired
 	private ReviewRepository reviewRepository;
 	
-	public List<ReviewDto> findAllByItemAndType(Long itemId, TypeEnum type) throws NotFoundException {
+	public List<ReviewDto> findAllByItemAndType(Long itemId, TypeEnum type) {
 		logger.info("Fetching reviews for itemId={} and type={}", itemId, type);
 		
 		List<Review> reviews = reviewRepository.findByItemIdAndType(itemId, type);
 		if(reviews.isEmpty()) {
 			logger.warn("No reviews found for itemId={} and type={}", itemId, type);
-			throw new NotFoundException();
+			throw new ReviewNotFoundException();
 		}
 		
 		logger.info("Found {} reviews for itemId={} and type={}", reviews.size(), itemId, type);
@@ -47,13 +47,13 @@ public class ReviewService {
 		return ReviewMapper.toDto(review);
 	}
 	
-	public ReviewDto update(ReviewDto reviewDto) throws NotFoundException {
+	public ReviewDto update(ReviewDto reviewDto) {
 		logger.info("Updating review with id={}", reviewDto.getId());
 
 		Review review = reviewRepository.findById(reviewDto.getId())
 			.orElseThrow(() -> {
 				logger.warn("Review not found with id={}", reviewDto.getId());
-				return new NotFoundException();
+				return new ReviewNotFoundException();
 			});
 
 		review.setComment(reviewDto.getComment());
@@ -68,12 +68,12 @@ public class ReviewService {
 		return ReviewMapper.toDto(review);
 	}
 	
-	public void delete(Long id) throws NotFoundException {
+	public void delete(Long id) {
 		logger.info("Deleting review with id={}", id);
 
 		Review reviewExists = reviewRepository.findById(id).orElseThrow(() -> {
 			logger.warn("Review not found for deletion with id={}", id);
-			return new NotFoundException();
+			return new ReviewNotFoundException();
 		});
 
 		reviewRepository.delete(reviewExists);
