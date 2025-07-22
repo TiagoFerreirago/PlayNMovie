@@ -1,7 +1,5 @@
 package com.th.playnmovie.service;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +8,11 @@ import org.springframework.stereotype.Service;
 import com.th.playnmovie.dto.GameDto;
 import com.th.playnmovie.exception.CustomizedBadRequestException;
 import com.th.playnmovie.exception.GameNotFoundException;
+import com.th.playnmovie.exception.response.ErrorMessages;
 import com.th.playnmovie.mapper.GameMapper;
 import com.th.playnmovie.model.Game;
 import com.th.playnmovie.repository.GameRepository;
+import com.th.playnmovie.util.ValidationUtils;
 
 import reactor.core.publisher.Flux;
 
@@ -24,10 +24,14 @@ public class GameService {
 	@Autowired
 	private GameRepository gameRepository;
 	@Autowired
-	private IgdbService igdbService;
+	private IgdbClient igdbClient;
 
 	public GameDto createGame(GameDto dto){
-	    logger.info("createGame chamado com título: {}", dto.getTitle());
+		
+		if (dto == null)
+		        throw new CustomizedBadRequestException(ErrorMessages.GAME_DATA_REQUIRED);
+		
+	    logger.info("createGame called with title: {}", dto.getTitle());
 
 		validateNewGame(dto);
 		
@@ -37,7 +41,8 @@ public class GameService {
 	}
 	
 	public GameDto updateGame(GameDto dto){
-        logger.info("updateGame called with dto: {}", dto);
+		logger.info("Updating game with ID: {}, title: {}", dto.getId(), dto.getTitle());
+
         validateUpdateGame(dto);
 
 	    Game game = gameRepository.findById(dto.getId())
@@ -55,10 +60,10 @@ public class GameService {
 
 	
 	public void deleteGame(Long id){
-		if (id == null) throw new CustomizedBadRequestException("ID obrigatório.");
+		if (id == null) throw new CustomizedBadRequestException(ErrorMessages.ID_REQUIRED);
 		logger.info("Deleting game with id: {}", id);
-		
-		Game game = gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException("Jogo com ID " + id + " não encontrado."));
+		 
+		Game game = gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException("Game with ID " + id + " not found."));
 		gameRepository.delete(game);
 	}
 	
@@ -67,31 +72,25 @@ public class GameService {
 	                   .map(p -> GameMapper.toDto(p));
 	 }
 	
-	 public Flux<GameDto> getGames(int page) {
+	 public Flux<GameDto> getGamesFromDbAndApi(int page) {
 		 Flux<GameDto> fromDb = Flux.fromIterable(gameRepository.findAll()).map(p -> GameMapper.toDto(p));
 		
-		 Flux<GameDto> fromApi = igdbService.getAllGames(page);
+		 Flux<GameDto> fromApi = igdbClient.getAllGames(page);
 		 
-		 return Flux.merge(fromDb, fromApi); 
+		 return Flux.concat(fromDb, fromApi); 
 	 }
 	 
-	  private void validateNewGame(GameDto dto) {
-	        if (dto == null) throw new CustomizedBadRequestException("Dados do jogo não fornecidos.");
-	        if (isBlank(dto.getTitle())) throw new CustomizedBadRequestException("Título obrigatório.");
-	        if (isEmpty(dto.getGenres())) throw new CustomizedBadRequestException("Gêneros obrigatórios.");
-	    }
+	 private void validateNewGame(GameDto dto) {
+	       if (dto == null) throw new CustomizedBadRequestException(ErrorMessages.GAME_DATA_REQUIRED);
+	       if (ValidationUtils.isBlank(dto.getTitle())) throw new CustomizedBadRequestException(ErrorMessages.TITLE_REQUIRED);
+	       if (ValidationUtils.isEmpty(dto.getGenres())) throw new CustomizedBadRequestException(ErrorMessages.GENRE_REQUIRED);
+	 }
 
-	  private void validateUpdateGame(GameDto dto) {
+	 private void validateUpdateGame(GameDto dto) {
 	        if (dto == null || dto.getId() == null)
-	            throw new CustomizedBadRequestException("ID do jogo é obrigatório.");
+	            throw new CustomizedBadRequestException(ErrorMessages.ID_REQUIRED);
 	        validateNewGame(dto); 
 	 }
 
-	 private boolean isBlank(String str) {
-	        return str == null || str.trim().isEmpty();
-	 }
-
-	private boolean isEmpty(List<?> list) {
-	        return list == null || list.isEmpty();
-	}
+	
 }

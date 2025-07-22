@@ -16,7 +16,7 @@ import com.th.playnmovie.security.model.User;
 import com.th.playnmovie.service.FavoriteService;
 
 @RestController
-@RequestMapping("/favorite")
+@RequestMapping("/favorites")
 public class FavoriteController {
 	
 	@Autowired

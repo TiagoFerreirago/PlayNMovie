@@ -22,7 +22,7 @@ import com.th.playnmovie.service.MovieService;
 import com.th.playnmovie.service.TmdbService;
 
 @RestController
-@RequestMapping("/movie")
+@RequestMapping("/movies")
 public class MovieController {
 
 	@Autowired

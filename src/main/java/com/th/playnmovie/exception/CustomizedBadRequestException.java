@@ -9,7 +9,7 @@ public class CustomizedBadRequestException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	
 	public CustomizedBadRequestException() {
-		super("Requisição inválida: verifique os dados fornecidos.");
+		super("Invalid request: check the data provided.");
 	}
 	
 	public CustomizedBadRequestException(String msg) {

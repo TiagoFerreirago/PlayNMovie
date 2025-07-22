@@ -19,7 +19,7 @@ import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.service.ReviewService;
 
 @RestController
-@RequestMapping("/review")
+@RequestMapping("/reviews")
 public class ReviewController {
 
 	@Autowired
