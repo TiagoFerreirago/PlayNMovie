@@ -13,8 +13,8 @@ public class ReviewAlreadyExistsException extends RuntimeException {
 		super("A review was found with these specifications!");
 	}
 	
-	public ReviewAlreadyExistsException(String msg) {
-		super(msg);
+	public ReviewAlreadyExistsException(String message) {
+		super(message);
 	}
 
 }

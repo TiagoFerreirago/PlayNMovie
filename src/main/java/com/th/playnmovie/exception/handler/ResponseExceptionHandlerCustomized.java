@@ -72,4 +72,10 @@ public class ResponseExceptionHandlerCustomized {
     public ResponseEntity<ResponseException> handleReviewNotFound(ReviewNotFoundException ex, WebRequest request) {
     	return buildResponse(ex, request, HttpStatus.NOT_FOUND);
     }
+    
+    @ExceptionHandler(TmdbApiException.class)
+    public ResponseEntity<ResponseException> handleTmdbApiBadGateway(ReviewNotFoundException ex, WebRequest request) {
+    	return buildResponse(ex, request, HttpStatus.BAD_GATEWAY);
+    }
+    
 }

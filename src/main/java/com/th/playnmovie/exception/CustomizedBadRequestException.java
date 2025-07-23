@@ -12,8 +12,8 @@ public class CustomizedBadRequestException extends RuntimeException {
 		super("Invalid request: check the data provided.");
 	}
 	
-	public CustomizedBadRequestException(String msg) {
-		super(msg);
+	public CustomizedBadRequestException(String message) {
+		super(message);
 	}
 
 }

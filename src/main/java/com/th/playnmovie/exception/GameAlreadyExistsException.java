@@ -14,8 +14,8 @@ public class GameAlreadyExistsException extends RuntimeException {
 	public GameAlreadyExistsException() {
 		super(ErrorMessages.GAME_ALREADY_EXISTS);	}
 	
-	public GameAlreadyExistsException(String msg) {
-		super(msg);
+	public GameAlreadyExistsException(String message) {
+		super(message);
 	}
 
 }

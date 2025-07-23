@@ -13,8 +13,8 @@ public class FavoriteNotFoundException extends RuntimeException {
 		super("The requested favorite was not found in the system.");
 	}
 	
-	public FavoriteNotFoundException(String msg) {
-		super(msg);
+	public FavoriteNotFoundException(String message) {
+		super(message);
 	}
 
 }

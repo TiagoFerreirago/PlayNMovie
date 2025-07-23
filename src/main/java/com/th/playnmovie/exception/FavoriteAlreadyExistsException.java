@@ -13,8 +13,8 @@ public class FavoriteAlreadyExistsException extends RuntimeException {
 		super("Was already a favorite!");
 	}
 	
-	public FavoriteAlreadyExistsException(String msg) {
-		super(msg);
+	public FavoriteAlreadyExistsException(String message) {
+		super(message);
 	}
 
 }

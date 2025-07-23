@@ -13,8 +13,8 @@ public class ReviewNotFoundException extends RuntimeException {
 		super("The review was not found!");
 	}
 	
-	public ReviewNotFoundException(String msg) {
-		super(msg);
+	public ReviewNotFoundException(String message) {
+		super(message);
 	}
 
 }

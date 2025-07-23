@@ -13,8 +13,8 @@ public class MovieAlreadyExistsException extends RuntimeException {
 		super("Movie already exists in the system.");
 	}
 	
-	public MovieAlreadyExistsException(String msg) {
-		super(msg);
+	public MovieAlreadyExistsException(String message) {
+		super(message);
 	}
 
 }

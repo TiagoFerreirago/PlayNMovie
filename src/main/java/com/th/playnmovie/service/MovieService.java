@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.th.playnmovie.dto.MovieDto;
+import com.th.playnmovie.exception.CustomizedBadRequestException;
 import com.th.playnmovie.exception.MovieAlreadyExistsException;
 import com.th.playnmovie.exception.MovieNotFoundException;
+import com.th.playnmovie.exception.response.ErrorMessages;
 import com.th.playnmovie.mapper.MovieMapper;
 import com.th.playnmovie.model.Movie;
 import com.th.playnmovie.repository.MovieRepository;
@@ -23,13 +25,13 @@ public class MovieService {
 	private MovieRepository movieRepository;
 
 	@Autowired
-	private TmdbService tmdbService;
+	private TmdbMovieService tmdbService;
 
 	public MovieDto createMovie(MovieDto movieDto){
 		validateMovieDto(movieDto);
 
 		logger.info("Checking if the movie '{}' already exists before creating.", movieDto.getTitle());
-		List<MovieDto> found = tmdbService.findMovieByTitleOrGenre(movieDto.getTitle(), movieDto.getGenres());
+		List<MovieDto> found = tmdbService.searchMoviesByTitleOrGenre(movieDto.getTitle(), movieDto.getGenres());
 
 		if (!found.isEmpty()) {
 			logger.warn("Movie '{}' already exists in the system.", movieDto.getTitle());
@@ -46,7 +48,7 @@ public class MovieService {
 
 		if (movieDto == null || movieDto.getId() == null) {
 			logger.warn("Attempt to update movie with null ID.");
-			throw new IllegalArgumentException("Movie ID is required for update.");
+			throw new CustomizedBadRequestException(ErrorMessages.MOVIE_ID_REQUIRED);
 		}
 
 		validateMovieDto(movieDto);
@@ -73,7 +75,7 @@ public class MovieService {
 
 		if (id == null) {
 			logger.warn("Attempt to delete movie with null ID.");
-			throw new IllegalArgumentException("Movie ID is required for deletion.");
+			throw new CustomizedBadRequestException(ErrorMessages.MOVIE_ID_REQUIRED_FOR_DELETION);
 		}
 
 		logger.info("Deleting movie with ID: {}", id);
@@ -91,17 +93,17 @@ public class MovieService {
 	private void validateMovieDto(MovieDto movieDto) {
 		if (movieDto == null) {
 			logger.warn("Movie DTO is null.");
-			throw new IllegalArgumentException("Movie data is required.");
+			throw new CustomizedBadRequestException(ErrorMessages.MOVIE_DATA_REQUIRED);
 		}
 
 		if (movieDto.getTitle() == null || movieDto.getTitle().trim().isEmpty()) {
 			logger.warn("Invalid movie title: '{}'", movieDto.getTitle());
-			throw new IllegalArgumentException("Movie title is required.");
+			throw new CustomizedBadRequestException(ErrorMessages.MOVIE_TITLE_REQUIRED);
 		}
 
 		if (movieDto.getGenres() == null || movieDto.getGenres().isEmpty()) {
 			logger.warn("Genres not provided for movie '{}'", movieDto.getTitle());
-			throw new IllegalArgumentException("At least one genre must be provided.");
+			throw new CustomizedBadRequestException(ErrorMessages.GENRES_REQUIRED);
 		}
 	}
 }

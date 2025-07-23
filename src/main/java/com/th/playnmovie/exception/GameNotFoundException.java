@@ -15,8 +15,8 @@ public class GameNotFoundException extends RuntimeException {
 		super(ErrorMessages.GAME_NOT_FOUND);
 	}
 	
-	public GameNotFoundException(String msg) {
-		super(msg);
+	public GameNotFoundException(String message) {
+		super(message);
 	}
 
 }

@@ -13,8 +13,8 @@ public class MovieNotFoundException extends RuntimeException {
 		super("The requested movie was not found in the system.");
 	}
 	
-	public MovieNotFoundException(String msg) {
-		super(msg);
+	public MovieNotFoundException(String message) {
+		super(message);
 	}
 
 }
