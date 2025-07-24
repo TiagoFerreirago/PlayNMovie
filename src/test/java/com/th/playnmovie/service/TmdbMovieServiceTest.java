@@ -57,18 +57,6 @@ class TmdbMovieServiceTest {
 		
 		assertEquals(1, result.size());
 	}
-	
-	@Test
-	void testGetMovieForPage_InvalidPage() {
-		Exception exception = assertThrows(CustomizedBadRequestException.class, () -> {
-			tmdbService.getMoviesFromTmdbPage(0);
-		});
-		
-		String expectedMessage = "Page must be greater than or equal to 1.";
-		String messageReleased = exception.getMessage();
-			    
-		assertEquals(messageReleased, expectedMessage);
-	}
 
 	@Test
 	void testFindMovieByTitleOrGenre() {
@@ -88,66 +76,6 @@ class TmdbMovieServiceTest {
 		var result = tmdbService.searchMoviesByTitleOrGenre("teste", List.of("Aventura"));
 	
 		assertEquals(1, result.size());
-	}
-	
-	@Test
-	void testFindMovieByTitleOrGenre_NoParams() {
-	    Exception exception = assertThrows(CustomizedBadRequestException.class, () -> {
-	        tmdbService.searchMoviesByTitleOrGenre(null, List.of());
-	    });
-	    
-	    String expectedMessage = "Provide at least a title or genre for search.";
-		String messageReleased = exception.getMessage();
-		    
-		assertEquals(messageReleased, expectedMessage);
-	}
-
-	@Test
-	void testFetchTmdbPage_ApiError() {
-		when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
-	    .thenThrow(new RestClientException("Erro"));
-	
-		Exception exception = assertThrows(TmdbApiException.class, () -> { 
-		tmdbService.fetchMoviesFromTmdb(1);
-	});
-		
-	    String expectedMessage = "Unable to connect to TMDb.";
-		String messageReleased = exception.getMessage();
-		    
-		assertEquals(messageReleased, expectedMessage);
-	}
-	
-	@Test
-	void testFetchTmdbPage_ReturnIsNull() {
-	    when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
-	        .thenReturn(null);
-
-	    Exception exception = assertThrows(MovieNotFoundException.class, () -> {
-	        tmdbService.fetchMoviesFromTmdb(1);
-	    });
-	    
-	    String expectedMessage = "Could not fetch data from TMDb.";
-		String messageReleased = exception.getMessage();
-		    
-		assertEquals(messageReleased, expectedMessage);
-	}
-
-	@Test
-	void testFetchTmdbPage_ResultsIsNull() {
-	    TmdbResponseDto response = new TmdbResponseDto();
-	    response.setResults(null);
-
-	    when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
-	        .thenReturn(response);
-
-	    Exception exception = assertThrows(MovieNotFoundException.class, () -> {
-	        tmdbService.fetchMoviesFromTmdb(1);
-	    });
-	    
-	    String expectedMessage = "Could not fetch data from TMDb.";
-		String messageReleased = exception.getMessage();
-		    
-		assertEquals(messageReleased, expectedMessage);
 	}
 	
 	@Test
@@ -175,7 +103,7 @@ class TmdbMovieServiceTest {
 	}
 	
 	@Test
-	void testFindMovieByTitleOrGenre_MatchTitleNotGenre() {
+	void testFindMovieByTitleOrGenreMatchTitleNotGenre() {
 	    MovieDto dto = new MovieDto();
 	    dto.setTitle("Batman");
 	    dto.setGenres(List.of("Ação"));
@@ -190,6 +118,79 @@ class TmdbMovieServiceTest {
 	    List<MovieDto> result = tmdbService.searchMoviesByTitleOrGenre("Bat", List.of("Drama"));
 
 	    assertEquals(0, result.size());
+	}
+	
+	@Test
+	void testGetMovieForPageInvalid() {
+		Exception exception = assertThrows(CustomizedBadRequestException.class, () -> {
+			tmdbService.getMoviesFromTmdbPage(0);
+		});
+		
+		String expectedMessage = "Page must be greater than or equal to 1.";
+		String messageReleased = exception.getMessage();
+			    
+		assertEquals(messageReleased, expectedMessage);
+	}
+	
+
+	@Test
+	void testFetchTmdbPageApiError() {
+		when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
+	    .thenThrow(new RestClientException("Erro"));
+	
+		Exception exception = assertThrows(TmdbApiException.class, () -> { 
+		tmdbService.fetchMoviesFromTmdb(1);
+	});
+		
+	    String expectedMessage = "Unable to connect to TMDb.";
+		String messageReleased = exception.getMessage();
+		    
+		assertEquals(messageReleased, expectedMessage);
+	}
+	
+	@Test
+	void testFetchTmdbPageReturnIsNull() {
+	    when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
+	        .thenReturn(null);
+
+	    Exception exception = assertThrows(MovieNotFoundException.class, () -> {
+	        tmdbService.fetchMoviesFromTmdb(1);
+	    });
+	    
+	    String expectedMessage = "Could not fetch data from TMDb.";
+		String messageReleased = exception.getMessage();
+		    
+		assertEquals(messageReleased, expectedMessage);
+	}
+
+	@Test
+	void testFetchTmdbPageResultsIsNull() {
+	    TmdbResponseDto response = new TmdbResponseDto();
+	    response.setResults(null);
+
+	    when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
+	        .thenReturn(response);
+
+	    Exception exception = assertThrows(MovieNotFoundException.class, () -> {
+	        tmdbService.fetchMoviesFromTmdb(1);
+	    });
+	    
+	    String expectedMessage = "Could not fetch data from TMDb.";
+		String messageReleased = exception.getMessage();
+		    
+		assertEquals(messageReleased, expectedMessage);
+	}
+	
+	@Test
+	void testFindMovieByTitleOrGenreNoParams() {
+	    Exception exception = assertThrows(CustomizedBadRequestException.class, () -> {
+	        tmdbService.searchMoviesByTitleOrGenre(null, List.of());
+	    });
+	    
+	    String expectedMessage = "Provide at least a title or genre for search.";
+		String messageReleased = exception.getMessage();
+		    
+		assertEquals(messageReleased, expectedMessage);
 	}
 
 }

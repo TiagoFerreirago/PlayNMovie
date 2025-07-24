@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.th.playnmovie.dto.FavoriteDto;
-import com.th.playnmovie.security.model.User;
 import com.th.playnmovie.service.FavoriteService;
 
 @RestController
@@ -23,19 +22,15 @@ public class FavoriteController {
 	private FavoriteService favoriteService;
 
 	@PostMapping
-	public ResponseEntity<FavoriteDto> favorite(@RequestBody FavoriteDto favoriteDto){
-		User user = new User();
-		user.setId(favoriteDto.getUser().getId());
-		
-		FavoriteDto dto = favoriteService.favorite(favoriteDto);
+	public ResponseEntity<FavoriteDto> addToFavorites(@RequestBody FavoriteDto favoriteDto){
+	
+		FavoriteDto dto = favoriteService.addToFavorites(favoriteDto);
 		return ResponseEntity.ok().body(dto);
 	}
 	@DeleteMapping
-	public ResponseEntity<Void> unfavorite(@RequestBody FavoriteDto favoriteDto){
-		User user = new User();
-		user.setId(favoriteDto.getUser().getId());
+	public ResponseEntity<Void> removeFromFavorites(@RequestBody FavoriteDto favoriteDto){
 		
-		favoriteService.unFavorite(favoriteDto);
+		favoriteService.removeFromFavorites(favoriteDto);
 		return ResponseEntity.noContent().build();
 	}
 	@GetMapping

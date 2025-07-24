@@ -10,7 +10,8 @@ public class FavoriteAlreadyExistsException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	
 	public FavoriteAlreadyExistsException() {
-		super("Was already a favorite!");
+		super("Item is already marked as favorite.");
+
 	}
 	
 	public FavoriteAlreadyExistsException(String message) {

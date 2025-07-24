@@ -23,19 +23,24 @@ public class FavoriteService {
 	@Autowired
 	private FavoriteRepository favoriteRepository;
 	
-	public FavoriteDto favorite(FavoriteDto favoriteDto) {
+	public FavoriteDto addToFavorites(FavoriteDto favoriteDto) {
+		
+		 if (favoriteDto.getUser() == null) {
+		        throw new IllegalArgumentException("User must not be null.");
+		 }
+		 
 		 logger.info("Attempting to add favorite: userId={}, itemId={}, type={}",
 	                favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		
 		 Favorite favorite;
 
-		    boolean favoritaded = favoriteRepository.existsByUserAndItemIdAndType(
+		    boolean alreadyFavorited = favoriteRepository.existsByUserAndItemIdAndType(
 		        favoriteDto.getUser(),
 		        favoriteDto.getItemId(),
 		        favoriteDto.getType()
 		    );
 
-		    if (favoritaded) {
+		    if (alreadyFavorited) {
 		    	 logger.warn("Favorite already exists for userId={}, itemId={}, type={}",
 		                    favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		        throw new FavoriteAlreadyExistsException();
@@ -52,7 +57,7 @@ public class FavoriteService {
 		    return FavoriteMapper.toDto(favorite);
 	}
 	
-	public void unFavorite(FavoriteDto favoriteDto) {
+	public void removeFromFavorites(FavoriteDto favoriteDto) {
 	    logger.info("Attempting to remove favorite: userId={}, itemId={}, type={}",
                 favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		
