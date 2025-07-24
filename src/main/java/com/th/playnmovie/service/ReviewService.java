@@ -24,59 +24,58 @@ public class ReviewService {
 	private ReviewRepository reviewRepository;
 	
 	public List<ReviewDto> findAllByItemAndType(Long itemId, TypeEnum type) {
-		logger.info("Fetching reviews for itemId={} and type={}", itemId, type);
-		
-		List<Review> reviews = reviewRepository.findByItemIdAndType(itemId, type);
-		if(reviews.isEmpty()) {
-			logger.warn("No reviews found for itemId={} and type={}", itemId, type);
-			throw new ReviewNotFoundException();
-		}
-		
-		logger.info("Found {} reviews for itemId={} and type={}", reviews.size(), itemId, type);
-		return reviews.stream().map(p -> ReviewMapper.toDto(p)).collect(Collectors.toList());
-		
-	}
-	
-	public ReviewDto create(ReviewDto reviewDto) {
-		logger.info("Creating new review for itemId={}, userId={}", reviewDto.getItemId(), reviewDto.getUser().getId());
+        logger.debug("Searching reviews for itemId={} and type={}", itemId, type);
 
-		Review review = ReviewMapper.fromDto(reviewDto);
-		reviewRepository.save(review);
-		
-		logger.info("Review created with id={}", review.getId());
-		return ReviewMapper.toDto(review);
-	}
-	
-	public ReviewDto update(ReviewDto reviewDto) {
-		logger.info("Updating review with id={}", reviewDto.getId());
+        List<Review> reviews = reviewRepository.findByItemIdAndType(itemId, type);
+        if (reviews.isEmpty()) {
+            logger.info("No reviews found for itemId={} and type={}", itemId, type);
+            return List.of();
+        }
 
-		Review review = reviewRepository.findById(reviewDto.getId())
-			.orElseThrow(() -> {
-				logger.warn("Review not found with id={}", reviewDto.getId());
-				return new ReviewNotFoundException();
-			});
+        logger.debug("Found {} reviews for itemId={} and type={}", reviews.size(), itemId, type);
+        return reviews.stream().map(ReviewMapper::toDto).collect(Collectors.toList());
+    }
 
-		review.setComment(reviewDto.getComment());
-		review.setItemId(reviewDto.getItemId());
-		review.setNotice(reviewDto.getNotice());
-		review.setType(reviewDto.getType());
-		review.setUser(reviewDto.getUser());
+    public ReviewDto createReview(ReviewDto reviewDto) {
+        logger.debug("Creating new review: itemId={}, userId={}", reviewDto.getItemId(), reviewDto.getUser().getId());
 
-		reviewRepository.save(review);
+        Review review = ReviewMapper.fromDto(reviewDto);
+        reviewRepository.save(review);
 
-		logger.info("Review updated with id={}", review.getId());
-		return ReviewMapper.toDto(review);
-	}
-	
-	public void delete(Long id) {
-		logger.info("Deleting review with id={}", id);
+        logger.info("Review created with id={}", review.getId());
+        return ReviewMapper.toDto(review);
+    }
 
-		Review reviewExists = reviewRepository.findById(id).orElseThrow(() -> {
-			logger.warn("Review not found for deletion with id={}", id);
-			return new ReviewNotFoundException();
-		});
+    public ReviewDto updateReview(ReviewDto reviewDto) {
+        logger.debug("Updating review with id={}", reviewDto.getId());
 
-		reviewRepository.delete(reviewExists);
-		logger.info("Review deleted with id={}", id);
-	}
+        Review review = reviewRepository.findById(reviewDto.getId())
+            .orElseThrow(() -> {
+                logger.info("Review not found with id={}", reviewDto.getId());
+                return new ReviewNotFoundException();
+            });
+
+        review.setComment(reviewDto.getComment());
+        review.setItemId(reviewDto.getItemId());
+        review.setNotice(reviewDto.getNotice());
+        review.setType(reviewDto.getType());
+        review.setUser(reviewDto.getUser());
+
+        reviewRepository.save(review);
+
+        logger.info("Review updated with id={}", review.getId());
+        return ReviewMapper.toDto(review);
+    }
+
+    public void deleteReview(Long id) {
+        logger.debug("Deleting review with id={}", id);
+
+        Review reviewExists = reviewRepository.findById(id).orElseThrow(() -> {
+            logger.info("Review not found for deletion with id={}", id);
+            return new ReviewNotFoundException();
+        });
+
+        reviewRepository.delete(reviewExists);
+        logger.info("Review deleted with id={}", id);
+    }
 }
