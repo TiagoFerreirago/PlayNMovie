@@ -67,6 +67,9 @@ public class TmdbMovieService {
 	}
 	
 	public List<MovieDto> searchLocalMoviesByTitleOrGenre(String title, List<String> genres) {
+		 if (genres != null && genres.isEmpty()) {
+		        genres = null;
+		 }
 		logger.info("Searching locally for movies with title '{}' or genres '{}'.", title, genres);
 		
 		List<Movie> movies = movieRepository.findMovies(title, genres);

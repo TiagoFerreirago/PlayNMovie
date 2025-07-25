@@ -13,9 +13,14 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 	@Query(value = """
 		    SELECT DISTINCT m.*
 		    FROM movie m
-		    JOIN movie_genres mg ON m.id = mg.movie_id
 		    WHERE (:title IS NULL OR REPLACE(LOWER(m.title), ' ', '') LIKE REPLACE(LOWER(CONCAT('%', :title, '%')), ' ', ''))
-		    AND (:genres IS NULL OR mg.genres IN (:genres))
+		    AND (
+		        (:genres IS NULL)
+		        OR EXISTS (
+		            SELECT 1 FROM movie_genres mg
+		            WHERE mg.movie_id = m.id AND mg.genres IN (:genres)
+		        )
+		    )
 		    """, nativeQuery = true)
 	List<Movie> findMovies(@Param("title") String title, @Param("genres") List<String> genres);
 
