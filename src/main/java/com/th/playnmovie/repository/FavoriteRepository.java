@@ -1,5 +1,7 @@
 package com.th.playnmovie.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 	
     boolean existsByUserAndItemIdAndType(User user, Long itemId, TypeEnum type);
 
+	List<Favorite> findByUser(User user);
+	
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM Favorite f WHERE f.user = :user AND f.itemId = :itemId AND f.type = :type")

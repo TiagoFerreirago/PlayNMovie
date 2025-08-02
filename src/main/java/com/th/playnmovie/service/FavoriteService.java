@@ -14,6 +14,8 @@ import com.th.playnmovie.exception.FavoriteNotFoundException;
 import com.th.playnmovie.mapper.FavoriteMapper;
 import com.th.playnmovie.model.Favorite;
 import com.th.playnmovie.repository.FavoriteRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.th.playnmovie.security.model.User;
 
 @Service
 public class FavoriteService {
@@ -25,60 +27,71 @@ public class FavoriteService {
 	
 	public FavoriteDto addToFavorites(FavoriteDto favoriteDto) {
 		
-		 if (favoriteDto.getUser() == null) {
-		        throw new IllegalArgumentException("User must not be null.");
+		Object main = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		if (!(main instanceof User)) {
+		        throw new IllegalArgumentException("Invalid authenticated user.");
 		 }
+		 User authenticatedUser = (User) main;
 		 
+		 favoriteDto.setUser(authenticatedUser);
+
 		 logger.info("Attempting to add favorite: userId={}, itemId={}, type={}",
-	                favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
+	                authenticatedUser.getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		
 		 Favorite favorite;
+		 boolean alreadyFavorited = favoriteRepository.existsByUserAndItemIdAndType(authenticatedUser, favoriteDto.getItemId(), favoriteDto.getType());
 
-		    boolean alreadyFavorited = favoriteRepository.existsByUserAndItemIdAndType(
-		        favoriteDto.getUser(),
-		        favoriteDto.getItemId(),
-		        favoriteDto.getType()
-		    );
+		if (alreadyFavorited) {
+		    logger.warn("Favorite already exists for userId={}, itemId={}, type={}",
+                authenticatedUser.getId(), favoriteDto.getItemId(), favoriteDto.getType());
+        	throw new FavoriteAlreadyExistsException();
+		}else {
+        favorite = new Favorite();
+        favorite.setItemId(favoriteDto.getItemId());
+        favorite.setType(favoriteDto.getType());
+        favorite.setUser(authenticatedUser);
+        favorite = favoriteRepository.save(favorite);
+        logger.info("Favorite successfully created: id={}, userId={}, itemId={}, type={}",
+                favorite.getId(), authenticatedUser.getId(), favoriteDto.getItemId(), favoriteDto.getType());
+	}
 
-		    if (alreadyFavorited) {
-		    	 logger.warn("Favorite already exists for userId={}, itemId={}, type={}",
-		                    favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
-		        throw new FavoriteAlreadyExistsException();
-		    } else {
-		    	favorite = new Favorite();
-		        favorite.setItemId(favoriteDto.getItemId());
-		        favorite.setType(favoriteDto.getType());
-		        favorite.setUser(favoriteDto.getUser());
-		        favorite = favoriteRepository.save(favorite);
-		        logger.info("Favorite successfully created: id={}, userId={}, itemId={}, type={}",
-	                    favorite.getId(), favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
-		    }
-
-		    return FavoriteMapper.toDto(favorite);
+		return FavoriteMapper.toDto(favorite);
 	}
 	
 	public void removeFromFavorites(FavoriteDto favoriteDto) {
-	    logger.info("Attempting to remove favorite: userId={}, itemId={}, type={}",
-                favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
+	    Object main = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		if(!(main instanceof User)) {
+		        throw new IllegalArgumentException("Invalid authenticated user.");
+		 }
+		User authenticatedUser = (User) main;
+		 
+		logger.info("Attempting to remove favorite: userId={}, itemId={}, type={}",
+                authenticatedUser.getId(), favoriteDto.getItemId(), favoriteDto.getType());
 		
 		boolean exists = favoriteRepository.existsByUserAndItemIdAndType(favoriteDto.getUser(), favoriteDto.getItemId(), favoriteDto.getType());
 		if(!exists) {
 			logger.warn("Favorite not found for removal: userId={}, itemId={}, type={}",
-	                    favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
+	                    authenticatedUser.getId(), favoriteDto.getItemId(), favoriteDto.getType());
 			throw new FavoriteNotFoundException();
 		}
 		
-		favoriteRepository.unfavorite(favoriteDto.getUser(), favoriteDto.getItemId(), favoriteDto.getType());
+		favoriteRepository.unfavorite(authenticatedUser, favoriteDto.getItemId(), favoriteDto.getType());
 		logger.info("Favorite successfully removed: userId={}, itemId={}, type={}",
-	                favoriteDto.getUser().getId(), favoriteDto.getItemId(), favoriteDto.getType());
+	                authenticatedUser.getId(), favoriteDto.getItemId(), favoriteDto.getType());
 	}
 	
 	public List<FavoriteDto> findAll(){
         logger.info("Retrieving all favorites");
 
-		List<Favorite> favorites = favoriteRepository.findAll();
+		Object main = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
-		logger.info("Found {} favorites", favorites.size());
+		User authenticatedUser = (User) main;
+		
+		List<Favorite> favorites = favoriteRepository.findByUser(authenticatedUser);
+		
+    	logger.info("Found {} favorites for userId={}", favorites.size(), authenticatedUser.getId());
 		return favorites.stream().map(p -> FavoriteMapper.toDto(p)).collect(Collectors.toList());
 	}
 	
