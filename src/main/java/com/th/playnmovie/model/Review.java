@@ -3,7 +3,6 @@ package com.th.playnmovie.model;
 import java.util.Objects;
 
 import com.th.playnmovie.security.model.User;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -93,6 +92,6 @@ public class Review {
 				&& Objects.equals(itemId, other.itemId) && Objects.equals(notice, other.notice) && type == other.type
 				&& Objects.equals(user, other.user);
 	}
-
+	
 	
 }

@@ -7,6 +7,7 @@ import com.th.playnmovie.dto.FavoriteDto;
 import com.th.playnmovie.model.Favorite;
 import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.security.model.User;
+import com.th.playnmovie.security.vo.UserVo;
 
 public class FavoriteMock {
 
@@ -23,7 +24,7 @@ public class FavoriteMock {
 		dto.setId(i);
 		dto.setItemId(2L);
 		dto.setType(TypeEnum.FILME);
-		dto.setUser(new User());
+		dto.setUser(new UserVo());
 		return dto;
 	}
 

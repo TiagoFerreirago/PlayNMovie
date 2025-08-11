@@ -3,13 +3,13 @@ package com.th.playnmovie.dto;
 import java.util.Objects;
 
 import com.th.playnmovie.model.TypeEnum;
-import com.th.playnmovie.security.model.User;
+import com.th.playnmovie.security.vo.UserVo;
 
 public class FavoriteDto {
 
 	private Long id;
 	
-	private User user;
+	private UserVo user;
 	
 	private Long itemId;
 	
@@ -25,11 +25,11 @@ public class FavoriteDto {
 		this.id = id;
 	}
 
-	public User getUser() {
+	public UserVo getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(UserVo user) {
 		this.user = user;
 	}
 

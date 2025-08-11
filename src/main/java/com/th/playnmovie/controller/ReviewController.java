@@ -27,8 +27,8 @@ public class ReviewController {
 	private ReviewService reviewService;
 	
 	@GetMapping
-	public ResponseEntity<List<ReviewDto>>findAllByItemAndType(@RequestParam Long itemId,
-		    @RequestParam TypeEnum type){
+	public ResponseEntity<List<ReviewDto>>findAllByItemAndType(@RequestParam(value= "itemId",required = false) Long itemId,
+		    @RequestParam(value= "type",required = false) TypeEnum type){
 		List<ReviewDto> findAll = reviewService.findAllByItemAndType(itemId, type);
 		return ResponseEntity.ok().body(findAll);
 	}

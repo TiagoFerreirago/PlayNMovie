@@ -2,7 +2,7 @@ package com.th.playnmovie.model;
 
 public enum TypeEnum {
 
-	FILME(1,"Filme"),
+	MOVIE(1,"Movie"),
 	GAME(2,"Game");
 	
 	private int id;

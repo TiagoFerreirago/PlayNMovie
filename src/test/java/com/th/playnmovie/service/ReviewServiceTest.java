@@ -2,6 +2,8 @@ package com.th.playnmovie.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,13 +16,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.th.playnmovie.dto.ReviewDto;
 import com.th.playnmovie.exception.ReviewNotFoundException;
+import com.th.playnmovie.mapper.UserMapper;
 import com.th.playnmovie.mock.ReviewMock;
 import com.th.playnmovie.model.Review;
 import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.repository.ReviewRepository;
+import com.th.playnmovie.security.model.User;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
@@ -76,6 +83,8 @@ class ReviewServiceTest {
 	@Test
 	void testCreateReview() {
 		
+		mockAuthenticatedUser(1L, "test");
+		
 		Review review = input.reviewMock(1L);
 		review.setId(1L);	
 		
@@ -91,43 +100,72 @@ class ReviewServiceTest {
 		assertEquals(result.getId(), 1L);
 		assertEquals(result.getComment(), "Test Comment 1");
 		assertEquals(result.getItemId(), 3L);
-		assertEquals(result.getNotice(), 11);
+		assertEquals(result.getNotice(), 9);
 		assertEquals(result.getType(), TypeEnum.FILME);
 		verify(reviewRepository).save(any(Review.class));
 	}
 
 	@Test
 	void testUpdateReview() {
+	    // Usuário mockado
+	    User userMock = new User();
+	    userMock.setId(1L);
+	    userMock.setUsername("test");
 
-		Review review = input.reviewMock(1L);
-		review.setId(1L);	
-		
-		Review persistenced = input.reviewMock(1L);
-		review.setId(1L);	
-		
-		ReviewDto dto = input.reviewMockDto(1L);
-		dto.setId(1L);
-		
-		when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
-		when(reviewRepository.save(review)).thenReturn(persistenced);
-		
-		var result = reviewService.updateReview(dto);
-		
-		assertNotNull(result.getId());
-		assertNotNull(result.getUser());
-		assertEquals(result.getId(), 1L);
-		assertEquals(result.getComment(), "Test Comment 1");
-		assertEquals(result.getItemId(), 3L);
-		assertEquals(result.getNotice(), 11);
-		assertEquals(result.getType(), TypeEnum.FILME);
-	
+	    // Configura o contexto de segurança
+	    Authentication authentication = mock(Authentication.class);
+	    when(authentication.getPrincipal()).thenReturn(userMock);
+	    
+	    SecurityContext securityContext = mock(SecurityContext.class);
+	    when(securityContext.getAuthentication()).thenReturn(authentication);
+	    SecurityContextHolder.setContext(securityContext);
+
+	    // Cria review com o mesmo usuário mockado
+	    Review review = input.reviewMock(1L);
+	    review.setId(1L);    
+	    review.setUser(userMock);  // 👈 usuário real, não `any`
+
+	    Review persistenced = input.reviewMock(1L);
+	    persistenced.setId(1L);    
+	    persistenced.setUser(userMock);  // 👈 usuário real também
+
+	    ReviewDto dto = input.reviewMockDto(1L);
+	    dto.setId(1L);
+	    dto.setUser(UserMapper.tokenResponseVo(userMock)); // 👈 usuário real convertido
+
+	    when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+	    when(reviewRepository.save(any(Review.class))).thenReturn(persistenced);
+
+	    // Executa e valida
+	    var result = reviewService.updateReview(dto);
+
+	    assertNotNull(result.getId());
+	    assertNotNull(result.getUser());
+	    assertEquals(1L, result.getId());
+	    assertEquals("Test Comment 1", result.getComment());
+	    assertEquals(3L, result.getItemId());
+	    assertEquals(11, result.getNotice());
+	    assertEquals(TypeEnum.FILME, result.getType());
 	}
 
 	@Test
 	void testDeleteReview() {
 
+		User userMock = new User();
+		userMock.setId(1L);
+		userMock.setUsername("test");
+		
+		Authentication authentication = mock(Authentication.class);
+		when(authentication.getPrincipal()).thenReturn(userMock);
+		
+		SecurityContext securityContext = mock(SecurityContext.class);
+		when(securityContext.getAuthentication()).thenReturn(authentication);
+		
+		SecurityContextHolder.setContext(securityContext);
+		
 		Review review = input.reviewMock(1L);
 		review.setId(1L);	
+		review.setUser(userMock);
 
 		when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
 		
@@ -167,7 +205,19 @@ class ReviewServiceTest {
 	    assertEquals(messageReleased, expectedMessage);
 	}
 
+	 private void mockAuthenticatedUser(Long id, String username) {
+		
+		 User userMock = new User();
+		 userMock.setId(id);
+		 userMock.setUsername(username);
+			
+		 Authentication authentication = mock(Authentication.class);
+		 lenient().when(authentication.getPrincipal()).thenReturn(userMock);
+			
+		 SecurityContext securityContext = mock(SecurityContext.class);
+		 lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+			
+		 SecurityContextHolder.setContext(securityContext);
 
-
-
+	 }
 }

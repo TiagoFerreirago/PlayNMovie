@@ -11,4 +11,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 	
 	List<Review>findByItemIdAndType(Long itemId, TypeEnum type);
+	List<Review>findByItemId(Long itemId);
+	List<Review>findByType(TypeEnum type);
 }

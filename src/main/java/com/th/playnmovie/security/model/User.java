@@ -179,4 +179,6 @@ public class User implements Serializable, UserDetails{
 				&& Objects.equals(id, other.id) && Objects.equals(password, other.password)
 				&& Objects.equals(permission, other.permission) && Objects.equals(username, other.username);
 	}
+
+	
 }

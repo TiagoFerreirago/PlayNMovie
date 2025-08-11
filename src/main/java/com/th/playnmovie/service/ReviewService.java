@@ -1,6 +1,7 @@
 package com.th.playnmovie.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.th.playnmovie.dto.ReviewDto;
 import com.th.playnmovie.exception.ReviewNotFoundException;
 import com.th.playnmovie.mapper.ReviewMapper;
+import com.th.playnmovie.mapper.UserMapper;
 import com.th.playnmovie.model.Review;
 import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.repository.ReviewRepository;
@@ -27,8 +29,26 @@ public class ReviewService {
 	
 	public List<ReviewDto> findAllByItemAndType(Long itemId, TypeEnum type) {
         logger.debug("Searching reviews for itemId={} and type={}", itemId, type);
+        
+        List<Review> reviews = null;
+        
+        String dataResult = (itemId != null? "I" : "") + (type != null ? "T" : "");
+        
+        switch(dataResult) {
+        
+	        case "IT":
+	        	 reviews = reviewRepository.findByItemIdAndType(itemId, type);
+	        	 break;
+	        
+	        case "I":
+	        	reviews = reviewRepository.findByItemId(itemId);
+	        	break;
+	        
+	        case "T":
+	        	reviews = reviewRepository.findByType(type);
+	        	break;
+        }
 
-        List<Review> reviews = reviewRepository.findByItemIdAndType(itemId, type);
         if (reviews.isEmpty()) {
             logger.info("No reviews found for itemId={} and type={}", itemId, type);
             return List.of();
@@ -46,12 +66,11 @@ public class ReviewService {
         User authenticatedUser = (User) main;
 
         logger.debug("Creating new review: itemId={}, userId={}", reviewDto.getItemId(), authenticatedUser.getId());
+        reviewDto.setUser(UserMapper.tokenResponseVo(authenticatedUser));
+        
+        Review review = reviewRepository.save(ReviewMapper.fromDto(reviewDto));
 
-        Review review = ReviewMapper.fromDto(reviewDto);
-        review.setUser(authenticatedUser);
-        reviewRepository.save(review);
-
-        logger.info("Review created with id={}", review.getId());
+        logger.info("Review created with id={}", reviewDto.getId());
         return ReviewMapper.toDto(review);
     }
 
@@ -69,7 +88,7 @@ public class ReviewService {
                 logger.info("Review not found with id={}", reviewDto.getId());
                 return new ReviewNotFoundException();
             });
-        if(!review.getUser().equals(authenticatedUser)){
+        if(!(Objects.equals(authenticatedUser.getId(), review.getUser().getId()))){
             throw new SecurityException("You can only edit your own reviews.");
         }
 

@@ -2,29 +2,19 @@ package com.th.playnmovie.dto;
 
 import java.util.Objects;
 
-import com.th.playnmovie.model.Review;
 import com.th.playnmovie.model.TypeEnum;
-import com.th.playnmovie.security.model.User;
+import com.th.playnmovie.security.vo.UserVo;
 
 public class ReviewDto {
 
 	private Long id;
-	private User user;
+	private UserVo user;
 	private Long itemId;
 	private TypeEnum type;
 	private String comment;
 	private Integer notice;
 	
 	public ReviewDto() {}
-
-	public ReviewDto(Review review) {
-		this.id = review.getId();
-		this.user = review.getUser();
-		this.itemId = review.getItemId();
-		this.type = review.getType();
-		this.comment = review.getComment();
-		this.notice = review.getNotice();
-	}
 
 	public Long getId() {
 		return id;
@@ -34,11 +24,11 @@ public class ReviewDto {
 		this.id = id;
 	}
 
-	public User getUser() {
+	public UserVo getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(UserVo user) {
 		this.user = user;
 	}
 
@@ -93,6 +83,5 @@ public class ReviewDto {
 				&& Objects.equals(itemId, other.itemId) && Objects.equals(notice, other.notice) && type == other.type
 				&& Objects.equals(user, other.user);
 	}
-
 	
 }

@@ -2,11 +2,17 @@ package com.th.playnmovie.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.th.playnmovie.dto.FavoriteDto;
 import com.th.playnmovie.exception.FavoriteAlreadyExistsException;
 import com.th.playnmovie.exception.FavoriteNotFoundException;
+import com.th.playnmovie.mapper.FavoriteMapper;
+import com.th.playnmovie.mapper.UserMapper;
 import com.th.playnmovie.mock.FavoriteMock;
 import com.th.playnmovie.model.Favorite;
 import com.th.playnmovie.repository.FavoriteRepository;
+import com.th.playnmovie.security.model.User;
 
 @ExtendWith(MockitoExtension.class)
 class FavoriteServiceTest {
@@ -36,14 +45,16 @@ class FavoriteServiceTest {
 
 	@Test
 	void  testAddToFavorites() {
+		
+		mockAuthenticatedUser(1L, "test");
 
 		Favorite favorite = input.favoriteMock(1L);
 		favorite.setId(1L);
+		FavoriteDto dto = FavoriteMapper.toDto(favorite);
+
 		
-		FavoriteDto dto = input.favoriteMockDto(1L);
-		favorite.setId(1L);
-		
-		when(favoriteRepository.existsByUserAndItemIdAndType(dto.getUser(), dto.getItemId(), dto.getType())).thenReturn(false);
+		when(favoriteRepository.existsByUserAndItemIdAndType(any(User.class), eq(dto.getItemId()), eq(dto.getType())))
+	    .thenReturn(false);
 		when(favoriteRepository.save(any(Favorite.class))).thenReturn(favorite);
 		
 		var result = favoriteService.addToFavorites(dto);
@@ -58,11 +69,13 @@ class FavoriteServiceTest {
 
 	@Test
 	void testRemoveFromFavorites() {
+		
+		mockAuthenticatedUser(1L, "test");
 
 		FavoriteDto dto = input.favoriteMockDto(1L);
 		dto.setId(1L);
 		
-		when(favoriteRepository.existsByUserAndItemIdAndType(dto.getUser(), dto.getItemId(), dto.getType()))
+		when(favoriteRepository.existsByUserAndItemIdAndType(UserMapper.tokenResponse(dto.getUser()), dto.getItemId(), dto.getType()))
         .thenReturn(true);
 
 		favoriteService.removeFromFavorites(dto);
@@ -70,9 +83,12 @@ class FavoriteServiceTest {
 
 	@Test
 	void testFindAll() {
+		
+		mockAuthenticatedUser(1L, "test");
+		
 	    List<Favorite> favorites = input.favoriteMockList();
 
-	    when(favoriteRepository.findAll()).thenReturn(favorites);
+	    when(favoriteRepository.findByUser(any(User.class))).thenReturn(favorites);
 
 	    var result = favoriteService.findAll();
 
@@ -101,21 +117,28 @@ class FavoriteServiceTest {
 	
 	@Test
 	void testUnFavoriteVerifyInteraction() {
+		
+		mockAuthenticatedUser(1L, "test");
+		
 	    FavoriteDto dto = input.favoriteMockDto(1L);
 
-	    when(favoriteRepository.existsByUserAndItemIdAndType(dto.getUser(), dto.getItemId(), dto.getType()))
+	    when(favoriteRepository.existsByUserAndItemIdAndType(any(User.class), eq(dto.getItemId()), eq(dto.getType())))
 	        .thenReturn(true);
 
 	    favoriteService.removeFromFavorites(dto);
 
-	    verify(favoriteRepository).unfavorite(dto.getUser(), dto.getItemId(), dto.getType());
+	    verify(favoriteRepository).unfavorite(any(User.class), eq(dto.getItemId()), eq(dto.getType()));
 	}
 	
 	@Test
 	void testAddToFavoritesThrowsWhenAlreadyFavorited() {
+		
+		mockAuthenticatedUser(1L, "test");
+
 	    FavoriteDto dto = input.favoriteMockDto(1L);
 
-	    when(favoriteRepository.existsByUserAndItemIdAndType(dto.getUser(), dto.getItemId(), dto.getType()))
+	    when(favoriteRepository.existsByUserAndItemIdAndType(
+	            any(User.class), eq(dto.getItemId()), eq(dto.getType())))
 	        .thenReturn(true);
 
 	    Exception exception = assertThrows(FavoriteAlreadyExistsException.class, () -> {
@@ -130,9 +153,11 @@ class FavoriteServiceTest {
 
 	@Test
 	void testUnFavoriteNotFound() {
+		
+		mockAuthenticatedUser(1L, "test");
 	    FavoriteDto dto = input.favoriteMockDto(1L);
 
-	    when(favoriteRepository.existsByUserAndItemIdAndType(dto.getUser(), dto.getItemId(), dto.getType()))
+	    when(favoriteRepository.existsByUserAndItemIdAndType(UserMapper.tokenResponse(dto.getUser()), dto.getItemId(), dto.getType()))
 	        .thenReturn(false);
 
 	    Exception exception = assertThrows(FavoriteNotFoundException.class, () -> {
@@ -147,6 +172,9 @@ class FavoriteServiceTest {
 	
 	@Test
 	void testFavoriteNullUser() {
+
+		mockAuthenticatedUser(1L, "test");
+
 	    FavoriteDto dto = input.favoriteMockDto(1L);
 	    dto.setUser(null);
 
@@ -156,6 +184,20 @@ class FavoriteServiceTest {
 	    String messageReleased = exception.getMessage();
 	    
 	    assertEquals(messageReleased, expectedMessage);
+	}
+	
+	private void mockAuthenticatedUser(Long id, String username) {
+	    User userMock = new User();
+	    userMock.setId(id);
+	    userMock.setUsername(username);
+
+	    Authentication authentication = mock(Authentication.class);
+	    lenient().when(authentication.getPrincipal()).thenReturn(userMock);
+
+	    SecurityContext securityContext = mock(SecurityContext.class);
+	    lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+
+	    SecurityContextHolder.setContext(securityContext);
 	}
 
 }

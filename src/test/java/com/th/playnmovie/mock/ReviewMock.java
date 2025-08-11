@@ -4,6 +4,7 @@ import com.th.playnmovie.dto.ReviewDto;
 import com.th.playnmovie.model.Review;
 import com.th.playnmovie.model.TypeEnum;
 import com.th.playnmovie.security.model.User;
+import com.th.playnmovie.security.vo.UserVo;
 
 public class ReviewMock {
 
@@ -38,7 +39,7 @@ public class ReviewMock {
 		reviewDto.setItemId(2L+i);
 		reviewDto.setNotice(10 + Integer.parseInt(i.toString()));
 		reviewDto.setType(TypeEnum.FILME);
-		reviewDto.setUser(new User());
+		reviewDto.setUser(new UserVo());
 
 		return reviewDto;
 	}

@@ -11,7 +11,7 @@ public class FavoriteMapper {
 		favorite.setId(dto.getId());
 		favorite.setItemId(dto.getItemId());
 		favorite.setType(dto.getType());
-		favorite.setUser(dto.getUser());
+		favorite.setUser(UserMapper.tokenResponse(dto.getUser()));
 		return favorite;
 	}
 	
@@ -20,7 +20,7 @@ public class FavoriteMapper {
 		dto.setId(favorite.getId());
 		dto.setItemId(favorite.getItemId());
 		dto.setType(favorite.getType());
-		dto.setUser(favorite.getUser());
+		dto.setUser(UserMapper.tokenResponseVo(favorite.getUser()));
 		return dto;
 	}
 }

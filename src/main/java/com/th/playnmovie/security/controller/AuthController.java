@@ -35,12 +35,12 @@ public class AuthController {
 		return ResponseEntity.ok().body(vo);
 	}
 	@PutMapping("/refresh/{username}")
-	public ResponseEntity<?> refreshToken(@PathVariable("name")String name, @RequestHeader("Authorization") String refreshToken){
+	public ResponseEntity<?> refreshToken(@PathVariable("username")String username, @RequestHeader("Authorization") String refreshToken){
 		
-		if(paramenterAreInvalid(name, refreshToken)) {
+		if(paramenterAreInvalid(username, refreshToken)) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid client request");
 		}
-		ResponseEntity<TokenVo> vo = authService.refreshToken(name, refreshToken);
+		ResponseEntity<TokenVo> vo = authService.refreshToken(username, refreshToken);
 		
 		return ResponseEntity.ok().body(vo);
 	}

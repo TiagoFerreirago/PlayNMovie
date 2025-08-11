@@ -12,7 +12,7 @@ public class ReviewMapper {
 		dto.setItemId(review.getItemId());
 		dto.setNotice(review.getNotice());
 		dto.setType(review.getType());
-		dto.setUser(review.getUser());
+		dto.setUser(UserMapper.tokenResponseVo(review.getUser()));
 		return dto;
 	}
 	
@@ -23,7 +23,7 @@ public class ReviewMapper {
 		review.setItemId(dto.getItemId());
 		review.setNotice(dto.getNotice());
 		review.setType(dto.getType());
-		review.setUser(dto.getUser());
+		review.setUser(UserMapper.tokenResponse(dto.getUser()));
 		return review;
 	}
 }
