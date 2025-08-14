@@ -57,7 +57,7 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/auth/signin",
 								"/auth/refresh/**",
-								"/auth/createacess"
+								"/auth/create"
 								).permitAll()
 						.requestMatchers("/favorites/**",
 								"/games/**",

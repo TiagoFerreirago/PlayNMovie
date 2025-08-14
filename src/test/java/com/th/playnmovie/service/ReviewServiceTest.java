@@ -52,9 +52,9 @@ class ReviewServiceTest {
 		Review reviewTwo = input.reviewMock(1L);
 		reviewTwo.setId(2L);
 		
-		when(reviewRepository.findByItemIdAndType(1L, TypeEnum.FILME)).thenReturn(List.of(review, reviewTwo));
+		when(reviewRepository.findByItemIdAndType(1L, TypeEnum.MOVIE)).thenReturn(List.of(review, reviewTwo));
 		
-		var result = reviewService.findAllByItemAndType(1L, TypeEnum.FILME);
+		var result = reviewService.findAllByItemAndType(1L, TypeEnum.MOVIE);
 		
 		assertNotNull(result);
 		assertNotNull(result.size());
@@ -66,7 +66,7 @@ class ReviewServiceTest {
 		assertEquals(dtoOne.getComment(), "Test Comment 1");
 		assertEquals(dtoOne.getItemId(), 3L);
 		assertEquals(dtoOne.getNotice(), 9);
-		assertEquals(dtoOne.getType(), TypeEnum.FILME);
+		assertEquals(dtoOne.getType(), TypeEnum.MOVIE);
 		
 		ReviewDto dtoTwo = result.get(1);
 		
@@ -76,7 +76,7 @@ class ReviewServiceTest {
 		assertEquals(dtoTwo.getComment(), "Test Comment 1");
 		assertEquals(dtoTwo.getItemId(), 3L);
 		assertEquals(dtoTwo.getNotice(), 9);
-		assertEquals(dtoTwo.getType(), TypeEnum.FILME);
+		assertEquals(dtoTwo.getType(), TypeEnum.MOVIE);
 	
 	}
 
@@ -101,7 +101,7 @@ class ReviewServiceTest {
 		assertEquals(result.getComment(), "Test Comment 1");
 		assertEquals(result.getItemId(), 3L);
 		assertEquals(result.getNotice(), 9);
-		assertEquals(result.getType(), TypeEnum.FILME);
+		assertEquals(result.getType(), TypeEnum.MOVIE);
 		verify(reviewRepository).save(any(Review.class));
 	}
 
@@ -145,7 +145,7 @@ class ReviewServiceTest {
 	    assertEquals("Test Comment 1", result.getComment());
 	    assertEquals(3L, result.getItemId());
 	    assertEquals(11, result.getNotice());
-	    assertEquals(TypeEnum.FILME, result.getType());
+	    assertEquals(TypeEnum.MOVIE, result.getType());
 	}
 
 	@Test

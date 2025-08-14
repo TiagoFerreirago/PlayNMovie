@@ -23,7 +23,7 @@ public class FavoriteMock {
 		FavoriteDto dto = new FavoriteDto();
 		dto.setId(i);
 		dto.setItemId(2L);
-		dto.setType(TypeEnum.FILME);
+		dto.setType(TypeEnum.MOVIE);
 		dto.setUser(new UserVo());
 		return dto;
 	}

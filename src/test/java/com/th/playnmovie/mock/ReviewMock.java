@@ -25,7 +25,7 @@ public class ReviewMock {
 		review.setId(i);
 		review.setItemId(2L+i);
 		review.setNotice(8 + Integer.parseInt(i.toString()));
-		review.setType(TypeEnum.FILME);
+		review.setType(TypeEnum.MOVIE);
 		review.setUser(new User());
 		
 		return review;
@@ -38,7 +38,7 @@ public class ReviewMock {
 		reviewDto.setId(i);
 		reviewDto.setItemId(2L+i);
 		reviewDto.setNotice(10 + Integer.parseInt(i.toString()));
-		reviewDto.setType(TypeEnum.FILME);
+		reviewDto.setType(TypeEnum.MOVIE);
 		reviewDto.setUser(new UserVo());
 
 		return reviewDto;

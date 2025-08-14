@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.th.playnmovie.security.model.User;
 import com.th.playnmovie.security.service.AuthService;
 import com.th.playnmovie.security.vo.AccountCredentialsVo;
 import com.th.playnmovie.security.vo.TokenVo;
+import com.th.playnmovie.security.vo.UserVo;
 
 import io.micrometer.common.util.StringUtils;
 
@@ -43,6 +45,12 @@ public class AuthController {
 		ResponseEntity<TokenVo> vo = authService.refreshToken(username, refreshToken);
 		
 		return ResponseEntity.ok().body(vo);
+	}
+	@PostMapping("/create")
+	public ResponseEntity<UserVo> createUser(@RequestBody User user){
+		
+		ResponseEntity<UserVo> vo = authService.createUser(user);
+		return vo;
 	}
 	
 

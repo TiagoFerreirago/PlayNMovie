@@ -1,6 +1,9 @@
 package com.th.playnmovie.security.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -9,10 +12,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.th.playnmovie.mapper.UserMapper;
 import com.th.playnmovie.security.jwt.JwtTokenProvider;
+import com.th.playnmovie.security.model.Permission;
+import com.th.playnmovie.security.model.User;
+import com.th.playnmovie.security.repository.PermissionRepository;
 import com.th.playnmovie.security.repository.UserRepository;
 import com.th.playnmovie.security.vo.AccountCredentialsVo;
 import com.th.playnmovie.security.vo.TokenVo;
+import com.th.playnmovie.security.vo.UserVo;
 
 @Service
 public class AuthService {
@@ -26,6 +34,8 @@ public class AuthService {
 	private UserRepository userRepository;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PermissionRepository permissionRepository;
 	
 	public ResponseEntity<TokenVo> signIn(AccountCredentialsVo credentials) {
 	    try {
@@ -72,5 +82,25 @@ public class AuthService {
 			throw new UsernameNotFoundException("Username " + username + " not found!");
 		}
 		return ResponseEntity.ok(tokenResponse);
+	}
+	
+	public ResponseEntity<UserVo> createUser(User user){
+		
+		User mainUser = new User();
+		
+		mainUser.setAccountNonExpired(true);
+		mainUser.setAccountNonLocked(true);
+		mainUser.setCredentialsNonExpired(true);
+		mainUser.setEnabled(true);
+		mainUser.setPassword(passwordEncoder.encode(user.getPassword()));
+		mainUser.setUsername(user.getUsername());
+		mainUser.setFullName(user.getFullName());
+		
+		Permission permission = permissionRepository.findByDescription("COMMON_USER");
+		mainUser.setPermission(List.of(permission));
+		
+		User userPersistence = userRepository.save(mainUser);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.tokenResponseVo(userPersistence));
 	}
 }
