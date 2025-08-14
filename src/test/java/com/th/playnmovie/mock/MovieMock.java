@@ -24,7 +24,7 @@ public class MovieMock {
 		dto.setReleaseDate(LocalDate.of(2025, 6, 30));
 		dto.setSynopsis("Test Synopsis Dto "+ d);
 		dto.setTitle("Test Title Dto " + d);
-		dto.setGenres(List.of("Aventura"));
+		dto.setGenres(List.of("Adventure"));
 		
 		return dto;
 	}
@@ -37,7 +37,7 @@ public class MovieMock {
 		movie.setReleaseDate(LocalDate.of(2025, 6, 22));
 		movie.setSynopsis("Test Synopsis "+ i);
 		movie.setTitle("Test Title " + i);
-		movie.setGenres(List.of("Aventura"));
+		movie.setGenres(List.of("Adventure"));
 		
 		return movie;
 	}

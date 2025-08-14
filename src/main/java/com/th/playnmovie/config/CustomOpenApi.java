@@ -10,8 +10,8 @@ import io.swagger.v3.oas.models.info.License;
 @Configuration
 public class CustomOpenApi {
 
-	@Bean
-	OpenAPI customOpenApi() {
+	@Bean(name = "openApiBean")
+	OpenAPI openApi() {
 		return new OpenAPI()
 				.info(new Info()
 						.title("PlayNmovie API")

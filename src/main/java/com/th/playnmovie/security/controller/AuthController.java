@@ -46,8 +46,8 @@ public class AuthController {
 		
 		return ResponseEntity.ok().body(vo);
 	}
-	@PostMapping("/create")
-	public ResponseEntity<UserVo> createUser(@RequestBody User user){
+	@PostMapping("/register")
+	public ResponseEntity<UserVo> registerUser(@RequestBody User user){
 		
 		ResponseEntity<UserVo> vo = authService.createUser(user);
 		return vo;

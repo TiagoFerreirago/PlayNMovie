@@ -107,12 +107,11 @@ class ReviewServiceTest {
 
 	@Test
 	void testUpdateReview() {
-	    // Usuário mockado
-	    User userMock = new User();
+
+		User userMock = new User();
 	    userMock.setId(1L);
 	    userMock.setUsername("test");
 
-	    // Configura o contexto de segurança
 	    Authentication authentication = mock(Authentication.class);
 	    when(authentication.getPrincipal()).thenReturn(userMock);
 	    
@@ -120,23 +119,21 @@ class ReviewServiceTest {
 	    when(securityContext.getAuthentication()).thenReturn(authentication);
 	    SecurityContextHolder.setContext(securityContext);
 
-	    // Cria review com o mesmo usuário mockado
 	    Review review = input.reviewMock(1L);
 	    review.setId(1L);    
-	    review.setUser(userMock);  // 👈 usuário real, não `any`
+	    review.setUser(userMock);
 
 	    Review persistenced = input.reviewMock(1L);
 	    persistenced.setId(1L);    
-	    persistenced.setUser(userMock);  // 👈 usuário real também
+	    persistenced.setUser(userMock);
 
 	    ReviewDto dto = input.reviewMockDto(1L);
 	    dto.setId(1L);
-	    dto.setUser(UserMapper.tokenResponseVo(userMock)); // 👈 usuário real convertido
+	    dto.setUser(UserMapper.tokenResponseVo(userMock));
 
 	    when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
 	    when(reviewRepository.save(any(Review.class))).thenReturn(persistenced);
 
-	    // Executa e valida
 	    var result = reviewService.updateReview(dto);
 
 	    assertNotNull(result.getId());

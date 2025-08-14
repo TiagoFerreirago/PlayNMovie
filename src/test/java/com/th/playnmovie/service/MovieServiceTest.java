@@ -67,7 +67,7 @@ class MovieServiceTest {
 		assertEquals(result.getReleaseDate(), LocalDate.of(2025, 6, 30));
 		assertEquals(result.getSynopsis(), "Test Synopsis Dto 1");
 		assertEquals(result.getTitle(), "Test Title Dto 1");
-		assertEquals(result.getGenres(), List.of("Aventura"));
+		assertEquals(result.getGenres(), List.of("Adventure"));
 		verify(tmdbService).searchMoviesByTitleOrGenre(dto.getTitle(),dto.getGenres());
 		verify(movieRepository).save(any(Movie.class));
 		
@@ -96,7 +96,7 @@ class MovieServiceTest {
 		assertEquals(result.getReleaseDate(), LocalDate.of(2025, 6, 30));
 		assertEquals(result.getSynopsis(), "Test Synopsis Dto 1");
 		assertEquals(result.getTitle(), "Test Title Dto 1");
-		assertEquals(result.getGenres(), List.of("Aventura"));
+		assertEquals(result.getGenres(), List.of("Adventure"));
 		verify(movieRepository).findById(1L);
 		verify(movieRepository).save(movie);
 	}

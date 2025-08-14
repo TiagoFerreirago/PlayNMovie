@@ -2,6 +2,8 @@ package com.th.playnmovie.security.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import com.th.playnmovie.security.vo.UserVo;
 @Service
 public class AuthService {
 
+	private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -38,54 +41,53 @@ public class AuthService {
 	private PermissionRepository permissionRepository;
 	
 	public ResponseEntity<TokenVo> signIn(AccountCredentialsVo credentials) {
-	    try {
-	        System.out.println("Attempting to authenticate user: " + credentials.getUsername());
-	        var username = credentials.getUsername();
-	        var password = credentials.getPassword();
+    try {
+        logger.debug("Attempting to authenticate user: {}", credentials.getUsername());
+        var username = credentials.getUsername();
+        var password = credentials.getPassword();
 
-	        // Buscar o usuário manualmente para debugar a senha
-	        var user = userRepository.findByUsername(username);
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(username, password));
 
-	        if (user != null) {
-	            System.out.println("Senha codificada no banco: " + user.getPassword());
-	            System.out.println("Senha raw digitada: " + password);
-	            System.out.println("Senha bate? " + passwordEncoder.matches(password, user.getPassword()));
-	        } else {
-	            System.out.println("Usuário não encontrado antes da autenticação.");
-	        }
+        var user = userRepository.findByUsername(username);
+        if (user == null) {
+            logger.warn("Username {} not found after authentication.", username);
+            throw new UsernameNotFoundException("Username " + username + " not found!");
+        }
 
-	        // Tentar autenticar
-	        authenticationManager.authenticate(
-	            new UsernamePasswordAuthenticationToken(username, password));
+        var tokenResponse = tokenProvider.createAccessToken(username, user.getRoles());
+        logger.info("User {} authenticated successfully.", username);
+        return ResponseEntity.ok(tokenResponse);
 
-	        // Gerar token se autenticação foi bem-sucedida
-	        if (user != null) {
-	            System.out.println("User authenticated, creating token...");
-	            var tokenResponse = tokenProvider.createAccessToken(username, user.getRoles());
-	            return ResponseEntity.ok(tokenResponse);
-	        } else {
-	            throw new UsernameNotFoundException("Username " + username + " not found!");
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        throw new BadCredentialsException("Invalid username/password supplied!");
-	    }
-	}
+    } catch (BadCredentialsException e) {
+        logger.error("Invalid username/password supplied for user: {}", credentials.getUsername());
+        throw e;
+    } catch (Exception e) {
+        logger.error("Authentication error for user {}: {}", credentials.getUsername(), e.getMessage());
+        throw new BadCredentialsException("Invalid username/password supplied!");
+    }
+}
 	
 	public ResponseEntity<TokenVo> refreshToken(String username, String refreshToken) {
+		logger.debug("Refreshing token for user: {}", username);
+
 		var user = userRepository.findByUsername(username);
 		
-		var tokenResponse = new TokenVo();
-		if (user != null) {
-			tokenResponse = tokenProvider.refreshToken(refreshToken);
-		} else {
+		if (user == null) {
+			logger.warn("Refresh token failed: user '{}' not found.", username);
 			throw new UsernameNotFoundException("Username " + username + " not found!");
 		}
+
+		var tokenResponse = tokenProvider.refreshToken(refreshToken);
+		logger.info("Token refreshed successfully for user '{}'", username);
+
 		return ResponseEntity.ok(tokenResponse);
-	}
+    }
 	
 	public ResponseEntity<UserVo> createUser(User user){
 		
+		logger.debug("Creating new user: {}", user.getUsername());
+
 		User mainUser = new User();
 		
 		mainUser.setAccountNonExpired(true);
@@ -100,6 +102,7 @@ public class AuthService {
 		mainUser.setPermission(List.of(permission));
 		
 		User userPersistence = userRepository.save(mainUser);
+		logger.info("User '{}' created successfully.", userPersistence.getUsername());
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.tokenResponseVo(userPersistence));
 	}

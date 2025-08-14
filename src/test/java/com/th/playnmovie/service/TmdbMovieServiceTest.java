@@ -73,7 +73,7 @@ class TmdbMovieServiceTest {
 		
 		when(movieRepository.findMovies(any(), any())).thenReturn(List.of(movie));
 		
-		var result = tmdbService.searchMoviesByTitleOrGenre("teste", List.of("Aventura"));
+		var result = tmdbService.searchMoviesByTitleOrGenre("test", List.of("Adventure"));
 	
 		assertEquals(1, result.size());
 	}
@@ -96,7 +96,7 @@ class TmdbMovieServiceTest {
 	    assertNotNull(result.getResults().get(0).getId());
 	    assertEquals(1, result.getResults().size());
 	    assertEquals("Test Title Dto 1", result.getResults().get(0).getTitle());
-	    assertEquals(List.of("Aventura"), result.getResults().get(0).getGenres());
+	    assertEquals(List.of("Adventure"), result.getResults().get(0).getGenres());
 	    assertEquals("Test Image Dto 1", result.getResults().get(0).getImageUrl());
 	    assertEquals(LocalDate.of(2025, 6, 30), result.getResults().get(0).getReleaseDate());
 	    assertEquals("Test Synopsis Dto 1", result.getResults().get(0).getSynopsis());
@@ -106,7 +106,7 @@ class TmdbMovieServiceTest {
 	void testFindMovieByTitleOrGenreMatchTitleNotGenre() {
 	    MovieDto dto = new MovieDto();
 	    dto.setTitle("Batman");
-	    dto.setGenres(List.of("Ação"));
+	    dto.setGenres(List.of("Action"));
 
 	    TmdbResponseDto response = new TmdbResponseDto();
 	    response.setResults(List.of(dto));
@@ -136,7 +136,7 @@ class TmdbMovieServiceTest {
 	@Test
 	void testFetchTmdbPageApiError() {
 		when(restTemplate.getForObject(anyString(), eq(TmdbResponseDto.class)))
-	    .thenThrow(new RestClientException("Erro"));
+	    .thenThrow(new RestClientException("Error"));
 	
 		Exception exception = assertThrows(TmdbApiException.class, () -> { 
 		tmdbService.fetchMoviesFromTmdb(1);
